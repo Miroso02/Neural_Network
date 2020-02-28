@@ -24,8 +24,6 @@ void setup() {
 }
 
 void draw() {
-  background(155);
-  
   boolean allDead = false;
   if (mousePressed) {
     simulate();
@@ -70,6 +68,7 @@ void simulate() {
   }
 }
 void displaySimulation() {
+  background(155);
   for (Meteor a : meteors) {
     a.display();
   }

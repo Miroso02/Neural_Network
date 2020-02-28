@@ -22,6 +22,6 @@ public class PObject {
     return distTo(obj) < (this.size + obj.size) / 2;
   }
   float distTo(PObject obj) {
-    return PVector.dist(this.position, obj.position) - obj.size - this.size;
+    return PVector.dist(this.position, obj.position);
   }
 }
