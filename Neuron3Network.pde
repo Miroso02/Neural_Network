@@ -4,12 +4,11 @@ class NeuronNetwork {
   
   public NeuronNetwork(int parametersN, int... structure) {
     numOfLayers = structure.length;
-    
     layers = new NeuronLayer[numOfLayers];
     
-    layers[0] = new NeuronLayer(structure[0], parametersN);
+    layers[0] = new NeuronLayer(parametersN, structure[0]);
     for(int i = 1; i < numOfLayers; i++) {
-      layers[i] = new NeuronLayer(structure[i], structure[i - 1]);
+      layers[i] = new NeuronLayer(structure[i - 1], structure[i]);
     }
   }
   

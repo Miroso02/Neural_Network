@@ -1,13 +1,16 @@
 Meteor[] meteors = new Meteor[20]; //obstacles
 Player[] players = new Player[45]; //AIs
-//ArrayList<Player> players = new ArrayList<Player>();
+ArrayList<Player> players0 = new ArrayList<Player>();
+ArrayList<Player> dead = new ArrayList<Player>();
 int generation;
 int score;
 int highscore;
+final float METEOR_SPEED = 4;
+final float PLAYER_SPEED = 10;
 
 void setup() {
-  //size(displayWidth, displayHeight);
-  size(720, 1280);
+  size(displayWidth, displayHeight);
+  //size(720, 1280);
   noStroke();
   textSize(60);
   generation = 1;
@@ -19,14 +22,18 @@ void setup() {
   }
 
   for (int i = 0; i < 45; i++) {
-    //players.add(new Player());
+    players0.add(new Player());
     players[i] = new Player();
   }
 }
 
 void draw() {
+  background(155);
+  fill(0);
+  text("Gen " + generation, 100, 100);
+  
   boolean allDead = false;
-  if (mousePressed) {
+  if (!mousePressed) {
     simulate();
     allDead = true; //all players are dead
     for (Player p : players) {
@@ -69,13 +76,11 @@ void simulate() {
   }
 }
 void displaySimulation() {
-  background(155);
   for (Meteor a : meteors) {
     a.display();
   }
 
   fill(0);
-  text("Gen " + generation, 100, 100);
   text("Score " + score, width - 300, 100);
   text("Best " + highscore, width - 300, 200);
 
@@ -88,17 +93,17 @@ void displaySimulation() {
 
 void createNewGeneration() {
   //println("Gen " + generation + "; score: " + score + "; highscore: " + highscore);
-  generation++; //go to next generation
-  if (highscore < score) highscore = score; //if highscore is beaten
-  score = 0; //starts from the begining
+  generation++;
+  if (highscore < score) highscore = score;
+  score = 0;
 
   int champion = 0;
-  int champion2 = 0; //indexes of the best
-  int champion3 = 0; //players in last game
+  int champion2 = 0;
+  int champion3 = 0;
   int champion4 = 0;
   for (int i = 0; i<players.length; i++) {
     if (players[champion].lifeTime < players[i].lifeTime) {
-      champion = i; //finding the best 1
+      champion = i;
     }
   }
   for (int i=0; i<players.length; i++)
@@ -106,7 +111,7 @@ void createNewGeneration() {
     if (players[champion2].lifeTime<players[i].lifeTime)
     {
       if (i!=champion)
-        champion2=i; //finding the best 2
+        champion2=i;
     }
   }
   for (int i=0; i<players.length; i++)
@@ -114,7 +119,7 @@ void createNewGeneration() {
     if (players[champion3].lifeTime<players[i].lifeTime)
     {
       if (i!=champion && i!=champion2)
-        champion3=i; //finding the best 3
+        champion3=i;
     }
   }
   for (int i=0; i<players.length; i++)
@@ -122,40 +127,30 @@ void createNewGeneration() {
     if (players[champion4].lifeTime<players[i].lifeTime)
     {
       if (i!=champion && i!=champion2 && i!=champion3)
-        champion4=i; //finding the best 4
+        champion4=i;
     }
   }
 
   int num=40;
-  for (int i=0; i<players.length; i++)
-  { //creating champion's children
+  for (int i = 0; i < players.length; i++)
+  {
     if (i==champion || i==champion2 || i==champion3 ||
       i==champion4 || players[i].best==highscore)
-    { //if the player is champion or have beaten a highscore
-      //we leave him without changes
-      players[i].reset(players[champion].nn, false);
-      players[i].isChampion=true; //colour parameter
+    { players[i].reset(players[champion].nn, false);
+      players[i].isChampion = true;
       continue;
     }
-    if (num>30)
-    {
-      players[i].reset(players[champion].nn, true);
-    } else if (num>20)
-    {
-      players[i].reset(players[champion2].nn, true);
-    } else if (num>10)
-    {
-      players[i].reset(players[champion3].nn, true);
-    } else
-    {
-      players[i].reset(players[champion4].nn, true);
-    }
+    int chIndex = 0;
+    if (num > 30) chIndex = champion;
+    else if (num > 20) chIndex = champion2;
+    else if (num > 10) chIndex = champion3;
+    else chIndex = champion4;
+    
+    players[i].reset(players[chIndex].nn, true);
     num--;
-    //look Player → reset()
   }
-  for (Meteor m : meteors)
-  {
-    m.reset(); //meteors return to borders
+  for (Meteor m : meteors) {
+    m.reset();
   }
 }
 

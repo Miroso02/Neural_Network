@@ -6,20 +6,18 @@ class Meteor extends PObject {
   }
   
   void display() {
-    fill(0);
+    fill(0, 100);
     circle(position, size);
   }
   
   void reset() {
-    final float speed = 4;
-    float spX = random(speed);     //abs(speed) = 4
-    float spY = sqrt(sq(speed) - sq(spX));
+    float spX = random(METEOR_SPEED);
+    float spY = sqrt(sq(METEOR_SPEED) - sq(spX));
     velocity.set(spX, spY);
     position.set(0, height / 2);
     
-    int border = (int)random(4);
-    int a = (int)random(2);
-    //positive or negative speed
+    int border = (int) random(4);
+    int a = (int) random(2);
     
     switch (border) {
       case 0:     //left

@@ -2,7 +2,7 @@ class NeuronLayer {
   int numOfNeurons;
   Neuron[] neurons;
   
-  public NeuronLayer(int numN, int numNlast) {
+  public NeuronLayer(int numNlast, int numN) {
     numOfNeurons = numN;
     neurons = new Neuron[numN];
     

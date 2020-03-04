@@ -1,8 +1,7 @@
-class Player extends PObject{
+class Player extends PObject {
   boolean dead;
   boolean isChampion;
 
-  int numOfPar;
   int best = 1;
   int lifeTime = 0;
 
@@ -17,9 +16,8 @@ class Player extends PObject{
     size = 10;
     col = color(255, 0, 0);
 
-    numOfPar = 12;
-    nn = new NeuronNetwork(numOfPar, 12, 2);
-    // input(12) → 2 → output(2)
+    nn = new NeuronNetwork(8, 2);
+    // input(8) → output(2)
   }
 
   void display() {
@@ -32,34 +30,46 @@ class Player extends PObject{
   }
 
   void think() {
-    float[] parameters=new float[numOfPar];
+    final int numOfPar = 8;
+    float[] parameters = new float[numOfPar];
 
-    // Parameters 0-3 are distances to the walls
-    parameters[0] = position.x - width; //dist to right wall
-    parameters[1] = position.x;         //dist to left wall
-    parameters[2] = position.y - height;//dist to down wall
-    parameters[3] = position.y;         //dist to down wall
-
-    final float maxDist = sqrt(sq(width) + sq(height));
-    // Parameters 4-11 are distances to the nearest meteors in 8 directions
-    for (int i = 4; i < 12; i++) {
-      parameters[i] = maxDist;
-    }
-    for (int i = 0; i < 4; i++) { // 4 different lines for directions
-      for (Meteor meteor : meteors) {
-        float distX = meteor.position.x - position.x;
-        float distY = meteor.position.y - position.y;
-        if (distY * cos(i * QUARTER_PI) - distX * sin(i * QUARTER_PI) < meteor.size) {
-          float dist = (distTo(meteor) - (meteor.size + this.size) / 2) / maxDist;
-          int num = distY < 0 ? i + 4 : i + 8;
-          if (parameters[num] > dist) parameters[num] = dist;
+    for (Meteor a : meteors) { 
+      float distX = position.x - a.position.x; 
+      float distY = position.y - a.position.y; 
+      int numInMass = 0; 
+      if (abs(distX) < (a.size + size) / 2) {
+        numInMass = distY > 0 ? 0 : 1;
+      } else if (abs(distY) < (a.size + size) / 2) { 
+        numInMass = distX < 0 ? 2 : 3;
+      } else if (abs(distX - distY) < a.size / sqrt(2)) { //diagonals  
+        numInMass = distX < 0 ? 4 : 5;
+      } else if (abs(distX + distY) < a.size / sqrt(2)) { 
+        numInMass = distX < 0 ? 6 : 7;
+      } 
+      if (numInMass != 0) { 
+        float dist = sqrt(sq(distX) + sq(distY)) - (a.size + size) / 2; 
+        if (dist < parameters[numInMass] || parameters[numInMass] == 0) { 
+          parameters[numInMass] = dist;
         }
       }
     }
-
+    for (int i = 0 ; i < 8; i++) {
+      if (parameters[i] == 0) {
+        switch (i) {
+          case 0: parameters[i] = position.y; break;
+          case 1: parameters[i] = height - position.y; break;
+          case 2: parameters[i] = width - position.x; break;
+          case 3: parameters[i] = position.x; break;
+          case 4: parameters[i] = min(width - position.x, position.y) * sqrt(2); break;
+          case 5: parameters[i] = min(position.x, height - position.y) * sqrt(2); break;
+          case 6: parameters[i] = min(width - position.x, height - position.y) * sqrt(2); break;
+          case 7: parameters[i] = min(position.x, position.y) * sqrt(2); break;
+        }
+      }
+    }
+    
     float[] results = nn.countValue(parameters);
-    final float speed = 10;
-    velocity = new PVector(results[0], results[1]).normalize().mult(speed);
+    velocity = new PVector(results[0], results[1]).normalize().mult(PLAYER_SPEED);
   }
 
   void update() {
