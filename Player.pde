@@ -19,7 +19,7 @@ class Player extends PObject {
     nn = new NeuronNetwork(8, 2);
     // input(8) → output(2)
   }
-
+  
   void display() {
     col = color(255, 0, 0);
     if (isChampion) col = color(0, 255, 0);
@@ -77,13 +77,13 @@ class Player extends PObject {
       lifeTime++;
     }
 
-    for (Meteor a : meteors) {
-      if (this.isTouching(a)) {
+    for (Meteor meteor : meteors) {
+      if (this.isTouching(meteor)) {
         setRec();
         return;
       }
     }
-    if (isTouchingBorder()) setRec();
+    if (this.isTouchingBorder()) setRec();
   }
 
   void reset(NeuronNetwork master, boolean change) {
