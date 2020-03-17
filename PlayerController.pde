@@ -4,17 +4,17 @@ public class PlayerController {
   int numOfPlayers;
   private int numOfChampions;
   private int childrenPerChampion;
-  /*int generation;
+  int generation;
   int score;
-  int highscore;*/
+  int highscore;
   
   public PlayerController(int nOfPl, int nOfCh) {
     numOfPlayers = nOfPl;
     numOfChampions = nOfCh;
     childrenPerChampion = (int)((nOfPl - nOfCh) / nOfCh);
-    /*generation = 1;
+    generation = 1;
     score = 0;
-    highscore = 0;*/
+    highscore = 0;
     
     for (int i = 0; i < nOfPl; i++) {
       players.add(new Player());
@@ -22,24 +22,19 @@ public class PlayerController {
   }
   
   public void simulate() {
-    //score++;
+    score++;
     for (Player p : players) {
-      p.think();
-      p.move();
       p.update();
     }
     removeKilledPlayers();
-  }
-  
-  public boolean allDead() {
-    return players.size() == 0;
   }
   
   private void removeKilledPlayers() {
     ArrayList<Player> deadPlayers = new ArrayList<Player>();
     for (int i = 0; i < players.size(); i++) {
       Player p = players.get(i);
-      if (p.dead) {
+      if (p.isDead()) {
+        p.reset();
         deadPlayers.add(p);
         dead.add(p);
       }
@@ -51,16 +46,22 @@ public class PlayerController {
   }
   
   public void createNewGen() {
+    generation++;
+    if (highscore < score) highscore = score;
+    score = 0;
     for (Player p: dead) {
-      if (p.best == highscore) players.add(p);
+      if (p.best == highscore) {
+        players.add(p);
+        p.col = color(0, 0, 255);
+        break;
+      }
     }
     for (int i = numOfPlayers - 1; i > numOfPlayers - 1 - numOfChampions; i--) {
       Player champion = dead.get(i);
+      champion.col = color(0, 255, 0);
       players.add(champion);
       for (int j = 0; j < childrenPerChampion; j++) {
-        Player p = new Player();
-        p.reset(champion.nn, true);
-        players.add(p);
+        players.add(new Player().mutate(champion.nn));
       }
     }
     dead.clear();
@@ -73,5 +74,9 @@ public class PlayerController {
     for (Player p : players) {
       p.display();
     }
+  }
+  
+  public boolean allDead() {
+    return players.size() == 0;
   }
 }

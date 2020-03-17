@@ -1,15 +1,8 @@
 class Player extends PObject {
-  boolean dead;
-  boolean isChampion;
-
   int best = 1;
-  int lifeTime = 0;
-
   NeuronNetwork nn;
 
   public Player() {
-    dead = false;
-    isChampion = false;
     position = new PVector(width / 2, height / 2);
     velocity = new PVector(0, 0);
 
@@ -20,16 +13,14 @@ class Player extends PObject {
     // input(8) → output(2)
   }
   
-  void display() {
-    col = color(255, 0, 0);
-    if (isChampion) col = color(0, 255, 0);
-    if (best == highscore) col = color(0, 0, 255);
-
-    fill(col);
-    circle(position, size);
+  //----------------- Main methods ----------------------
+  
+  public void update() {
+    calcVelocity();
+    move();
   }
-
-  void think() {
+  
+  public void calcVelocity() {
     final int numOfPar = 8;
     float[] parameters = new float[numOfPar];
 
@@ -71,34 +62,31 @@ class Player extends PObject {
     float[] results = nn.countValue(parameters);
     velocity = new PVector(results[0], results[1]).normalize().mult(PLAYER_SPEED);
   }
+  
+  //--------------- After death methods -----------------
+  
+  public void reset() {
+    if (pc.score > best) best = pc.score;
+    position.set(width / 2, height / 2);
+  }
+  public Player mutate(NeuronNetwork master) {
+    nn.newLayers(master);
+    return this;
+  }
 
-  void update() {
-    if (!dead) {
-      lifeTime++;
-    }
+  //----------------- Info methods ----------------------
+  
+  public boolean isDead() {
+    return this.isTouchingMeteor()
+     || this.isTouchingBorder();
+  }
 
+  private boolean isTouchingMeteor() {
     for (Meteor meteor : meteors) {
       if (this.isTouching(meteor)) {
-        setRec();
-        return;
+        return true;
       }
     }
-    if (this.isTouchingBorder()) setRec();
-  }
-
-  void reset(NeuronNetwork master, boolean change) {
-    dead = false;
-    position.set(width / 2, height / 2);
-
-    if (change) nn.newLayers(master);
-    lifeTime = 0;
-  }
-
-  void setRec() {
-    if (!dead) {
-      dead = true;
-      if (lifeTime > best) best = lifeTime;
-      isChampion = false;
-    }
+    return false;
   }
 }

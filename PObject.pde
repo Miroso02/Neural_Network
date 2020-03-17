@@ -4,6 +4,8 @@ public class PObject {
   int size;
   color col;
   
+  //----------------- Main methods ----------------------
+  
   public void move() {
     position.add(velocity);
   }
@@ -12,7 +14,7 @@ public class PObject {
     circle(position, size);
   }
   
-  //-----------------Info methods----------------------
+  //----------------- Info methods ----------------------
   
   boolean isTouchingBorder() {
     return (abs(position.x - width / 2) > width / 2 ||

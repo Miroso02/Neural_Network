@@ -1,8 +1,5 @@
-Meteor[] meteors = new Meteor[20]; //obstacles
+Meteor[] meteors = new Meteor[20];
 PlayerController pc = new PlayerController(45, 5);
-int generation;
-int score;
-int highscore;
 final float METEOR_SPEED = 4;
 final float PLAYER_SPEED = 10;
 
@@ -11,10 +8,7 @@ void setup() {
   //size(720, 1280);
   noStroke();
   textSize(60);
-  generation = 1;
-  score = 0;
-  highscore = 0;
-
+  
   for (int i = 0; i < meteors.length; i++) {
     meteors[i] = new Meteor();
   }
@@ -23,7 +17,7 @@ void setup() {
 void draw() {
   background(155);
   fill(0);
-  text("Gen " + generation, 100, 100);
+  text("Gen " + pc.generation, 100, 100);
   
   if (!mousePressed) {
     simulate();
@@ -31,35 +25,28 @@ void draw() {
     if (pc.allDead()) createNewGeneration();
     return;
   }
+  
   while(!pc.allDead()) {
     simulate();
   }
-
-  if (pc.allDead()) createNewGeneration();
+  createNewGeneration();
 }
 
 void simulate() {
-  score++;
-  for (Meteor a : meteors) {
-    a.move();
+  for (Meteor m : meteors) {
+    m.move();
     if (a.isTouchingBorder()) a.reset();
   }
   pc.simulate();
 }
 void displaySimulation() {
-  for (Meteor a : meteors) {
-    a.display();
+  for (Meteor m : meteors) {
+    m.display();
   }
   pc.display();
 }
-
 void createNewGeneration() {
-  generation++;
-  if (highscore < score) highscore = score;
-  score = 0;
-  
   pc.createNewGen();
-  
   for (Meteor m : meteors) {
     m.reset();
   }
